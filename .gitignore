@@ -1,0 +1,10 @@
+/target/
+**/*.rs.bk
+.env
+*.pem
+*.key
+data/
+*.db
+.private/
+*.log
+.DS_Store

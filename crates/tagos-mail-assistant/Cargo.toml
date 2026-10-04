@@ -1,0 +1,16 @@
+[package]
+name = "tagos-mail-assistant"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "Draft-only mail assistant logic: followups, reminders, briefings"
+
+[features]
+default = []
+test-support = []
+
+[dependencies]
+
+[dev-dependencies]
