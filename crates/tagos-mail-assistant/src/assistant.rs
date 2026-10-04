@@ -9,6 +9,7 @@ use crate::scheduler::{resolve_followup, take_due_reminders, DueReminder, Resolv
 use crate::store::FollowupStore;
 use crate::tracker::{await_reply, lazy_check, AwaitReplyOutcome, AwaitReplyRequest};
 
+#[derive(Clone)]
 pub struct Assistant<B, S, C> {
     pub backend: B,
     pub store: S,
@@ -22,6 +23,10 @@ where
     S: FollowupStore,
     C: Clock,
 {
+    pub fn clear_cache(&self) {
+        self.cache.clear();
+    }
+
     pub fn new(backend: B, store: S, clock: C) -> Self {
         Self {
             backend,

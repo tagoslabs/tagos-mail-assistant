@@ -11,7 +11,7 @@ use crate::scheduler::{event_for, tick_account};
 use crate::store::FollowupStore;
 use crate::untrusted::{same_addr, sanitize};
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
 pub struct ReplyNotice {
     pub followup: Followup,
     pub message_id: String,
@@ -20,7 +20,7 @@ pub struct ReplyNotice {
     pub snippet: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
 pub struct CheckReport {
     pub newly_replied: Vec<ReplyNotice>,
     pub newly_overdue: Vec<Followup>,

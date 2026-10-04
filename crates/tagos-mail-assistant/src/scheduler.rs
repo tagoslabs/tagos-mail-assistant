@@ -14,7 +14,7 @@ pub enum ResolveAction {
     Snooze,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
 pub struct DueReminder {
     pub event: AssistantEvent,
     pub followup: Followup,

@@ -19,7 +19,7 @@ chrono-tz = "0.10"
 thiserror = "2"
 ulid = { version = "1", features = ["serde"] }
 async-trait = "0.1"
-tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread", "sync", "time", "io-util", "net"] }
+tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread", "sync", "time", "io-util", "net", "io-std", "signal"] }
 sha2 = "0.10"
 hex = "0.4"
 base64 = "0.22"

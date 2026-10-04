@@ -27,7 +27,7 @@ pub struct BriefingQuery {
     pub max_items: Option<u32>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
 pub struct BriefItem {
     pub thread_id: String,
     pub address: String,
@@ -37,7 +37,7 @@ pub struct BriefItem {
     pub untrusted: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
 pub struct BriefCounts {
     pub needs_reply: usize,
     pub fyi: usize,
@@ -46,7 +46,7 @@ pub struct BriefCounts {
     pub waiting_on_others: usize,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
 pub struct Briefing {
     pub generated_at: DateTime<Utc>,
     pub since: DateTime<Utc>,
@@ -80,14 +80,18 @@ struct CachedThread {
     messages: Vec<MessageView>,
 }
 
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct MailCache {
-    inner: Mutex<CacheState>,
+    inner: std::sync::Arc<Mutex<CacheState>>,
 }
 
 impl MailCache {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    pub fn clear(&self) {
+        *self.inner.lock().expect("cache") = CacheState::default();
     }
 }
 
