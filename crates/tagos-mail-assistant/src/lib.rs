@@ -3,6 +3,7 @@
 //! This crate does not send mail and does not open network connections.
 
 pub mod backend;
+pub mod briefing;
 pub mod clock;
 pub mod detector;
 pub mod errors;
