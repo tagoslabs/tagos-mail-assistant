@@ -12,5 +12,11 @@ default = []
 test-support = []
 
 [dependencies]
+async-trait = { workspace = true }
+chrono = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+ulid = { workspace = true }
 
 [dev-dependencies]
+tokio = { workspace = true }
