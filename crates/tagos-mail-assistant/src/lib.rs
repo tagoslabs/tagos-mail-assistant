@@ -5,8 +5,10 @@
 pub mod backend;
 pub mod clock;
 pub mod errors;
+pub mod guards;
 pub mod model;
 pub mod store;
+pub mod untrusted;
 
 #[cfg(any(test, feature = "test-support"))]
 pub use store::store_contract_suite;
