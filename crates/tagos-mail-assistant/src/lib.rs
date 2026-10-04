@@ -2,9 +2,11 @@
 //!
 //! This crate does not send mail and does not open network connections.
 
+pub mod assistant;
 pub mod backend;
 pub mod briefing;
 pub mod clock;
+pub mod demo_mail;
 pub mod detector;
 pub mod drafts;
 pub mod errors;

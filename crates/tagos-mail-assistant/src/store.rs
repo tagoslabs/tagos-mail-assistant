@@ -70,9 +70,9 @@ struct Memory {
     prefs: Vec<Prefs>,
 }
 
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct InMemoryStore {
-    inner: Mutex<Memory>,
+    inner: std::sync::Arc<Mutex<Memory>>,
 }
 
 impl InMemoryStore {

@@ -1,0 +1,11 @@
+{
+  "scenarios": {
+    "priya_signed": {
+      "thread_id": "11111111-1111-4111-8111-111111111111",
+      "from": "Priya Shah <priya@example.com>",
+      "to": "Alex <alex@demo.tagos.example>",
+      "subject": "Re: Contract for signature",
+      "body_text": "Signed and attached."
+    }
+  }
+}

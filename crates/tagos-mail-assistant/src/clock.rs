@@ -1,4 +1,4 @@
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 use chrono::{DateTime, Utc};
 
@@ -21,15 +21,15 @@ pub trait Clock: Send + Sync {
 ///     Utc.with_ymd_and_hms(2026, 10, 23, 12, 0, 0).single().unwrap()
 /// );
 /// ```
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FixedClock {
-    now: Mutex<DateTime<Utc>>,
+    now: Arc<Mutex<DateTime<Utc>>>,
 }
 
 impl FixedClock {
     pub fn new(now: DateTime<Utc>) -> Self {
         Self {
-            now: Mutex::new(now),
+            now: Arc::new(Mutex::new(now)),
         }
     }
 
