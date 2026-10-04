@@ -83,7 +83,7 @@ pub struct TokenInfo {
 
 #[derive(Debug)]
 pub struct ServePlan {
-    pub bind_host: &'static str,
+    pub bind_host: String,
     pub base: String,
 }
 
@@ -93,23 +93,35 @@ pub fn serve_plan(
     login: bool,
     static_token: bool,
     base_override: Option<&str>,
+    listen: Option<&str>,
 ) -> Result<ServePlan, &'static str> {
+    if public_bind && listen.is_some() {
+        return Err("--listen cannot be combined with --public");
+    }
     if public_bind && !login {
         return Err("--public requires --auth-profile");
-    }
-    if static_token && public_bind {
-        return Err("--demo-static-token is loopback only");
     }
     if static_token && !login {
         return Err("--demo-static-token requires --auth-profile");
     }
-    let bind_host = if public_bind { "0.0.0.0" } else { "127.0.0.1" };
+    let bind_host = if public_bind {
+        "0.0.0.0".to_string()
+    } else {
+        listen.unwrap_or("127.0.0.1").to_string()
+    };
+    if static_token && !is_loopback(&bind_host) {
+        return Err("--demo-static-token is loopback only");
+    }
     let base = match base_override {
         Some(raw) => raw.trim_end_matches('/').to_string(),
         None if !public_bind => format!("http://127.0.0.1:{port}"),
         None => return Err("--public requires --base-url"),
     };
     Ok(ServePlan { bind_host, base })
+}
+
+fn is_loopback(host: &str) -> bool {
+    matches!(host, "127.0.0.1" | "localhost" | "::1")
 }
 
 impl AuthState {
@@ -706,13 +718,20 @@ mod tests {
 
     #[test]
     fn public_bind_requires_demo_login() {
-        let err = serve_plan(8787, true, false, false, None).unwrap_err();
+        let err = serve_plan(8787, true, false, false, None, None).unwrap_err();
         assert_eq!(err, "--public requires --auth-profile");
     }
 
     #[test]
+    fn container_listen_does_not_require_login() {
+        let plan = serve_plan(8787, false, false, false, None, Some("0.0.0.0")).unwrap();
+        assert_eq!(plan.bind_host, "0.0.0.0");
+    }
+
+    #[test]
     fn static_token_refuses_a_public_bind() {
-        let err = serve_plan(8787, true, true, true, Some("http://demo.example")).unwrap_err();
+        let err =
+            serve_plan(8787, true, true, true, Some("http://demo.example"), None).unwrap_err();
         assert_eq!(err, "--demo-static-token is loopback only");
     }
 

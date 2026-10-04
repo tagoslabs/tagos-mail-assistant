@@ -1,0 +1,10 @@
+{
+  "name": "one.tagos/mail",
+  "description": "Tagos Mail MCP. Read a mailbox, search it, and save drafts. Sign in with Tagos.",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.tagos.one/mcp"
+    }
+  ]
+}

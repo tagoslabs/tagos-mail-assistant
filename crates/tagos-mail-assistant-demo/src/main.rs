@@ -42,6 +42,7 @@ async fn main() -> anyhow::Result<()> {
             let mut static_token = false;
             let mut profile: Option<&str> = None;
             let mut base_url: Option<String> = None;
+            let mut listen: Option<String> = None;
             while let Some(arg) = args.next() {
                 match arg.as_str() {
                     "--port" => {
@@ -59,6 +60,12 @@ async fn main() -> anyhow::Result<()> {
                             _ => anyhow::bail!("--auth-profile must be mcp or alexa"),
                         });
                     }
+                    "--listen" => {
+                        listen = Some(
+                            args.next()
+                                .ok_or_else(|| anyhow::anyhow!("--listen needs an address"))?,
+                        );
+                    }
                     "--base-url" => {
                         base_url = Some(
                             args.next()
@@ -69,9 +76,15 @@ async fn main() -> anyhow::Result<()> {
                 }
             }
             let login = profile.is_some();
-            let plan =
-                auth::serve_plan(port, public_bind, login, static_token, base_url.as_deref())
-                    .map_err(|err| anyhow::anyhow!(err))?;
+            let plan = auth::serve_plan(
+                port,
+                public_bind,
+                login,
+                static_token,
+                base_url.as_deref(),
+                listen.as_deref(),
+            )
+            .map_err(|err| anyhow::anyhow!(err))?;
             let mode = match profile {
                 Some("alexa") => auth::AuthMode::Alexa,
                 Some("mcp") => auth::AuthMode::Mcp,
@@ -87,8 +100,9 @@ async fn main() -> anyhow::Result<()> {
                 eprintln!("demo-static-token: {token}");
             }
             let addr = format!("{}:{port}", plan.bind_host);
+            let app = mcp::DemoMcp::new();
             eprintln!("demo mcp listening on http://{addr}/mcp");
-            mcp::serve(&addr, mcp::DemoMcp::new(), state).await
+            mcp::serve(&addr, app, state).await
         }
         Some(other) => anyhow::bail!("unknown command {other}; use serve, stdio, or bench"),
     }

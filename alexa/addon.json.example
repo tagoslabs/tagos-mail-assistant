@@ -1,0 +1,32 @@
+{
+  "status": "not submitted — toolkit not available to participants",
+  "name": "Tagos Mail",
+  "privacyPolicyUrl": "https://tagos.one/privacy",
+  "termsOfUseUrl": "https://tagos.one/terms",
+  "icons": {
+    "light": {
+      "72": "https://example.com/tagos-mail/icon-72.png",
+      "64": "https://example.com/tagos-mail/icon-64.png",
+      "88": "https://example.com/tagos-mail/icon-88.png",
+      "126": "https://example.com/tagos-mail/icon-126.png",
+      "180": "https://example.com/tagos-mail/icon-180.png",
+      "241": "https://example.com/tagos-mail/icon-241.png"
+    }
+  },
+  "carousel": [
+    "https://example.com/tagos-mail/carousel-600x900.png"
+  ],
+  "integrations": [
+    {
+      "type": "MCP",
+      "config": {
+        "endpoints": {
+          "default": {
+            "type": "HTTPS",
+            "uri": "https://mcp.tagos.one/mcp"
+          }
+        }
+      }
+    }
+  ]
+}

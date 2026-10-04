@@ -791,6 +791,27 @@ pub async fn bench_report(samples: usize) -> Vec<ToolTiming> {
         })
         .await,
     );
+    rows.push(
+        time_tool("prepare_reply_draft", samples, || {
+            app.prepare_reply_draft(Parameters(PrepareArgs {
+                followup_id: None,
+                thread_id: Some("11111111-1111-4111-8111-111111111111".into()),
+                body_text: None,
+                kind: Some("nudge".into()),
+                to: None,
+                confirm_new_recipient: None,
+                subject: None,
+            }))
+        })
+        .await,
+    );
+    rows.push(
+        time_tool("demo_advance_clock", samples, || {
+            app.demo_advance_clock(Parameters(AdvanceArgs { hours: 1 }))
+        })
+        .await,
+    );
+    rows.push(time_tool("demo_reset", samples, || app.demo_reset()).await);
     rows
 }
 
