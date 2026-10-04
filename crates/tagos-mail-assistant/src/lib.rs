@@ -6,6 +6,7 @@ pub mod backend;
 pub mod briefing;
 pub mod clock;
 pub mod detector;
+pub mod drafts;
 pub mod errors;
 pub mod guards;
 pub mod model;
