@@ -21,6 +21,7 @@ use tagos_mail_assistant::model::{clamp_limit, DraftPatch, FollowupFilter};
 use tagos_mail_assistant::scheduler::ResolveAction;
 use tagos_mail_assistant::store::FollowupStore;
 
+use crate::auth::{as_meta, authorize_get, authorize_post, guard, prm, token, AuthState};
 use crate::sqlite_store::SqliteStore;
 use tagos_mail_assistant::tracker::AwaitReplyRequest;
 
@@ -583,10 +584,16 @@ pub fn http_config() -> StreamableHttpServerConfig {
     let mut config = StreamableHttpServerConfig::default();
     config.legacy_session_mode = false;
     config.json_response = true;
+    config.allowed_origins = vec![
+        "http://localhost:6274".into(),
+        "http://127.0.0.1:6274".into(),
+        "http://localhost:8787".into(),
+        "http://127.0.0.1:8787".into(),
+    ];
     config
 }
 
-pub fn app_router(app: DemoMcp) -> axum::Router {
+pub fn app_router_with(app: DemoMcp, auth: AuthState) -> axum::Router {
     let service = StreamableHttpService::new(
         {
             let app = app.clone();
@@ -595,12 +602,43 @@ pub fn app_router(app: DemoMcp) -> axum::Router {
         LocalSessionManager::default().into(),
         http_config(),
     );
-    axum::Router::new().nest_service("/mcp", service)
+    let mut router = axum::Router::<AuthState>::new().nest_service("/mcp", service);
+    if auth.login_enabled() {
+        router = router
+            .route(
+                "/.well-known/oauth-protected-resource",
+                axum::routing::get(prm),
+            )
+            .route(
+                "/.well-known/oauth-protected-resource/mcp",
+                axum::routing::get(prm),
+            )
+            .route(
+                "/.well-known/oauth-authorization-server",
+                axum::routing::get(as_meta),
+            )
+            .route(
+                "/.well-known/oauth-authorization-server/demo-oauth",
+                axum::routing::get(as_meta),
+            )
+            .route(
+                "/demo-oauth/.well-known/oauth-authorization-server",
+                axum::routing::get(as_meta),
+            )
+            .route(
+                "/demo-oauth/authorize",
+                axum::routing::get(authorize_get).post(authorize_post),
+            )
+            .route("/demo-oauth/token", axum::routing::post(token));
+    }
+    router
+        .layer(axum::middleware::from_fn_with_state(auth.clone(), guard))
+        .with_state(auth)
 }
 
-pub async fn serve(addr: &str, app: DemoMcp) -> anyhow::Result<()> {
+pub async fn serve(addr: &str, app: DemoMcp, auth: AuthState) -> anyhow::Result<()> {
     let listener = tokio::net::TcpListener::bind(addr).await?;
-    axum::serve(listener, app_router(app)).await?;
+    axum::serve(listener, app_router_with(app, auth)).await?;
     Ok(())
 }
 
@@ -813,15 +851,24 @@ mod tests {
 
     #[test]
     fn demo_binary_does_not_depend_on_an_http_client() {
+        let banned = ["req", "west"].concat();
         let cargo = include_str!("../Cargo.toml");
-        assert!(!cargo.contains("reqwest"));
+        assert!(!cargo.contains(&banned));
+        for source in [
+            include_str!("auth.rs"),
+            include_str!("mcp.rs"),
+            include_str!("sqlite_store.rs"),
+            include_str!("main.rs"),
+        ] {
+            assert!(!source.contains(&banned), "{source}");
+        }
     }
 
     #[tokio::test]
     async fn initialize_on_2025_11_25_and_get_is_not_allowed() {
         let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
         let port = listener.local_addr().unwrap().port();
-        let router = app_router(DemoMcp::ephemeral());
+        let router = app_router_with(DemoMcp::ephemeral(), crate::auth::AuthState::off());
         tokio::spawn(async move {
             axum::serve(listener, router).await.unwrap();
         });

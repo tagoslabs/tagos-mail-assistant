@@ -1,3 +1,4 @@
+mod auth;
 mod mcp;
 mod sqlite_store;
 
@@ -36,17 +37,58 @@ async fn main() -> anyhow::Result<()> {
             Ok(())
         }
         Some("serve") | None => {
-            let port = match args.next().as_deref() {
-                Some("--port") => args
-                    .next()
-                    .ok_or_else(|| anyhow::anyhow!("--port needs a number"))?
-                    .parse::<u16>()?,
-                Some(other) => anyhow::bail!("unknown argument {other}"),
-                None => 8787,
+            let mut port = 8787u16;
+            let mut public_bind = false;
+            let mut static_token = false;
+            let mut profile: Option<&str> = None;
+            let mut base_url: Option<String> = None;
+            while let Some(arg) = args.next() {
+                match arg.as_str() {
+                    "--port" => {
+                        port = args
+                            .next()
+                            .ok_or_else(|| anyhow::anyhow!("--port needs a number"))?
+                            .parse()?;
+                    }
+                    "--public" => public_bind = true,
+                    "--demo-static-token" => static_token = true,
+                    "--auth-profile" => {
+                        profile = Some(match args.next().as_deref() {
+                            Some("mcp") => "mcp",
+                            Some("alexa") => "alexa",
+                            _ => anyhow::bail!("--auth-profile must be mcp or alexa"),
+                        });
+                    }
+                    "--base-url" => {
+                        base_url = Some(
+                            args.next()
+                                .ok_or_else(|| anyhow::anyhow!("--base-url needs a URL"))?,
+                        );
+                    }
+                    other => anyhow::bail!("unknown argument {other}"),
+                }
+            }
+            let login = profile.is_some();
+            let plan =
+                auth::serve_plan(port, public_bind, login, static_token, base_url.as_deref())
+                    .map_err(|err| anyhow::anyhow!(err))?;
+            let mode = match profile {
+                Some("alexa") => auth::AuthMode::Alexa,
+                Some("mcp") => auth::AuthMode::Mcp,
+                _ => auth::AuthMode::Off,
             };
-            let addr = format!("127.0.0.1:{port}");
+            let state = if login {
+                auth::AuthState::open(mode, plan.base.clone())
+            } else {
+                auth::AuthState::off()
+            };
+            if static_token {
+                let token = state.issue_static_token();
+                eprintln!("demo-static-token: {token}");
+            }
+            let addr = format!("{}:{port}", plan.bind_host);
             eprintln!("demo mcp listening on http://{addr}/mcp");
-            mcp::serve(&addr, mcp::DemoMcp::new()).await
+            mcp::serve(&addr, mcp::DemoMcp::new(), state).await
         }
         Some(other) => anyhow::bail!("unknown command {other}; use serve, stdio, or bench"),
     }

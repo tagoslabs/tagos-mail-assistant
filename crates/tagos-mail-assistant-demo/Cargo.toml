@@ -16,6 +16,11 @@ tagos-mail-assistant = { path = "../tagos-mail-assistant" }
 async-trait = { workspace = true }
 rusqlite = { workspace = true }
 anyhow = "1"
+base64 = { workspace = true }
+hex = { workspace = true }
+sha2 = { workspace = true }
+tower = { workspace = true, features = ["util"] }
+uuid = { workspace = true }
 axum = { workspace = true }
 chrono = { workspace = true }
 rmcp = { version = "=3.5.0", default-features = false, features = [

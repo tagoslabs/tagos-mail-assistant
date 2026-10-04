@@ -1,0 +1,32 @@
+{
+  "clients": [
+    {
+      "client_id": "demo-inspector",
+      "redirect_uris": [
+        "http://127.0.0.1:6276/oauth/callback",
+        "http://localhost:6276/oauth/callback",
+        "http://127.0.0.1:6274/oauth/callback",
+        "http://localhost:6274/oauth/callback"
+      ],
+      "note": "Inspector 2.9.0 CLI listens on http://127.0.0.1:6276/oauth/callback. The web UI origin is port 6274."
+    },
+    {
+      "client_id": "demo-simulator",
+      "redirect_uris": [
+        "http://127.0.0.1:8787/sim/oauth/callback",
+        "http://localhost:8787/sim/oauth/callback"
+      ],
+      "note": "Callback for a local simulator served by this demo. The simulator page is not part of this server yet."
+    },
+    {
+      "client_id": "alexa-example",
+      "redirect_uris": [
+        "https://alexa.amazon.com/api/skill/link/REPLACE_ME",
+        "https://pitangui.amazon.com/api/skill/link/REPLACE_ME",
+        "https://layla.amazon.com/api/skill/link/REPLACE_ME",
+        "https://alexa.amazon.co.jp/api/skill/link/REPLACE_ME"
+      ],
+      "note": "replace with all Alexa redirect URIs from the account-linking doc. The published page (checked 2026-10-04) does not list them; the Alexa+ Developer Hub and alexa-ai configure-account-linking do. Use exactly the redirect_uri Alexa sends. Do not keep REPLACE_ME."
+    }
+  ]
+}
