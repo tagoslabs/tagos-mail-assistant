@@ -143,6 +143,18 @@ There is no Alexa+ device in this repository, and there is no `/sim` page in thi
 
 `update_draft`, `delete_draft`, `resolve_followup`, `forget_followups`, and `demo_deliver_reply` are covered by the functional tests. They need a fresh id, so they are not in this loop.
 
+Calling the seven assistant tools through an MCP handler, with followups stored in Postgres, also stayed under 500 ms at p95. Local measurement, 2026-10-04, 40 samples:
+
+| Tool | p50 | p95 |
+| --- | --- | --- |
+| inbox_briefing | 14.51 ms | 15.71 ms |
+| list_followups | 7.48 ms | 8.04 ms |
+| check_followups | 9.90 ms | 10.64 ms |
+| await_reply | 10.54 ms | 11.26 ms |
+| prepare_reply_draft | 6.48 ms | 7.12 ms |
+| resolve_followup | 10.09 ms | 11.04 ms |
+| forget_followups | 11.59 ms | 12.21 ms |
+
 ## Live server card
 
 `https://mcp.tagos.one/mcp` is the Tagos Mail MCP endpoint. Scopes are `mail.read`, `mail.draft`, and `mail.send`. A host signs in with Tagos. The server does not return raw MIME and does not accept a bulk recipient list.
