@@ -9,9 +9,9 @@ fail=0
 
 echo "authors"
 mapfile -t authors < <(git log --format='%ae' | sort -u)
-if [ "${#authors[@]}" -eq 1 ] && [ "${authors[0]}" = "placeholder@users.noreply.github.com" ]; then
-  echo "authors: placeholder@users.noreply.github.com only"
-  echo "Stanislav replaces this placeholder with his GitHub noreply address before the first push."
+expected="48457923+tagoslabs@users.noreply.github.com"
+if [ "${#authors[@]}" -eq 1 ] && [ "${authors[0]}" = "$expected" ]; then
+  echo "authors: $expected"
 else
   echo "unexpected commit authors:" "${authors[@]}"
   fail=1
